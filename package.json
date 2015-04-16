@@ -1,0 +1,8 @@
+{
+  "name": "images-server",
+  "version": "0.0.1",
+  "dependencies": {
+    "flickrapi": "^0.3.28",
+    "pg": "0.x"
+  }
+}

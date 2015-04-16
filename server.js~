@@ -1,0 +1,43 @@
+var http = require('http');
+var pg = require('pg');
+ 
+var conString = "tcp://pguser:password@localhost/mycms";
+ 
+function list_articles(callback) {
+    var client = new pg.Client(conString);
+    client.connect(function(err) {
+        if (err) {
+            callback(null, err);
+        } else {
+            client.query('SELECT * FROM articles ORDER BY art_id DESC;',
+                         callback);
+        }
+    });
+}
+ 
+function handle_error(res) {
+    res.writeHead(500, {'Content-Type': 'text/plain'});
+    res.end('Internal Server Error\n');
+}
+ 
+function write_response(res, result) {
+    res.writeHead(200, {'Content-Type': 'text/plain'});
+    res.write('Number of articles: ' + result.rowCount + '\n');
+    result.rows.forEach(function(row) {
+        res.write(row.art_id + ' | ' + row.art_title + '\n');
+    });
+    res.end();
+}
+ 
+server = http.createServer(function(req, res) {
+    list_articles(function(err, result) {
+        if (err) {
+            console.log(err);
+            handle_error();
+        } else {
+            write_response(res, result);
+        }
+    });
+});
+ 
+server.listen(8080);
